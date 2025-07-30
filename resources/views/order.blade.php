@@ -229,6 +229,10 @@
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
+                error: function(xhr, error, thrown) {
+                    console.log('DataTable Error:', error);
+                    console.log('Response:', xhr.responseText);
+                }
             },
 
             columns: [{
@@ -392,12 +396,12 @@
         Swal.close();
     });
 
+    
     $('#confirm_pay').click(function(e) {
         e.preventDefault();
-        var id = $('#order_id_pay').val(); 
+        var id = $('#order_id_pay').val(); /
         $.ajax({
-            url: "{{route('confirm_pay_single')}}", 
-            type: "post",
+            url: "{{route('confirm_pay_single')}}",
             data: {
                 id: id
             },
@@ -537,7 +541,6 @@
         });
     });
 
-    // แก้ไข: เปลี่ยนจาก update-status เป็น update-status-order
     $(document).on('click', '.update-status-order', function(e) {
         var id = $(this).data('id');
         $('#modal-detail').modal('hide');
