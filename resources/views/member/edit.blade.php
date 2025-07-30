@@ -22,7 +22,8 @@
                                             <select class="form-control" name="categories_id" id="categories_id" required>
                                                 <option value="" selected disabled>เลือก</option>
                                                 @foreach($categories as $rs)
-                                                <option value="{{$rs->id}}" <?= ($info['categories']->categories_id == $rs->id) ? 'selected' : '' ?>>{{$rs->name}}</option>
+                                                {{ (isset($info['categories']->categories_id) && $info['categories']->categories_id == $rs->id) ? 'selected' : '' }}>
+                                                <option value="{{$rs->id}}">{{$rs->name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>

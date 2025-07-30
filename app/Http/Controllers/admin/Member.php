@@ -31,9 +31,13 @@ class Member extends Controller
             foreach ($table as $rs) {
                 $action = '<a href="' . route('memberEdit', $rs->id) . '" class="btn btn-sm btn-outline-primary" title="แก้ไข"><i class="bx bx-edit-alt"></i></a>
                 <button type="button" data-id="' . $rs->id . '" class="btn btn-sm btn-outline-danger deleteTable" title="ลบ"><i class="bx bxs-trash"></i></button>';
+                $categoryName = '-';
+                if (isset($rs['categories']->categories)) {
+                    $categoryName = $rs['categories']['categories']->name;
+                }
                 $info[] = [
                     'name' => $rs->name,
-                    'categories' => $rs['categories']['categories']->name,
+                    'categories' => $categoryName,
                     'email' => $rs->email,
                     'tel' => $rs->tel,
                     'action' => $action
@@ -111,12 +115,19 @@ class Member extends Controller
             $table->email = $input['email'];
             $table->tel = $input['tel'];
             if ($table->save()) {
-                $categories = UsersCategories::where('users_id', $input['id'])->first();
-                $categories->categories_id = $input['categories_id'];
-                if ($categories->save()) {
-                    return redirect()->route('member')->with('success', 'บันทึกรายการเรียบร้อยแล้ว');
-                }
-            }
+            $categories = UsersCategories::where('users_id', $input['id'])->first();
+
+              if (!$categories) {
+                // ถ้ายังไม่มี record ให้สร้างใหม่
+                $categories = new UsersCategories();
+                $categories->users_id = $input['id'];
+               }
+
+            $categories->categories_id = $input['categories_id'] ?? null; // รองรับค่าว่าง
+            $categories->save();
+
+            return redirect()->route('member')->with('success', 'บันทึกรายการเรียบร้อยแล้ว');
+        }
         }
         return redirect()->route('member')->with('error', 'ไม่สามารถบันทึกข้อมูลได้');
     }

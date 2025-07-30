@@ -21,6 +21,8 @@ use App\Models\UsersAddress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use App\Models\Categories_member;
+use App\Models\UsersCategories;
 
 class Delivery extends Controller
 {
@@ -333,6 +335,7 @@ class Delivery extends Controller
         $users->email = $input['email'];
         $users->password = Hash::make($input['password']);
         $users->email_verified_at = now();
+        $users->is_member = 1; // mark new registrations as members so they appear in admin
         if ($users->save()) {
             return redirect()->route('delivery.login')->with('success', 'สมัครสมาชิกเรียบร้อยแล้ว');
         }
