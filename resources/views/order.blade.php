@@ -224,7 +224,7 @@
                 [5, 'desc'] 
             ],
             ajax: {
-                url: "{{route('ListOrder')}}",
+                url: "/admin/order/listData",
                 type: "post",
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -288,11 +288,15 @@
                 [0, 'desc']
             ],
             ajax: {
-                url: "{{route('ListOrderPay')}}",
+                url: "/admin/order/ListOrderPay",
                 type: "post",
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
+                error: function(xhr, error, thrown) {
+                    console.log('DataTable2 Error:', error);
+                    console.log('Response:', xhr.responseText);
+                }
             },
 
             columns: [{
@@ -326,12 +330,12 @@
     });
 </script>
 <script>
-    $(document).on('click', '.modalShowSingle', function(e) {
+    $(document).on('click', '.modalShowTable', function(e) {
         e.preventDefault();
         var id = $(this).data('id');
         $.ajax({
             type: "post",
-            url: "{{ route('listOrderDetailSingle') }}", 
+            url: "{{ route('listOrderDetailTable') }}",
             data: {
                 id: id
             },
@@ -341,6 +345,65 @@
             success: function(response) {
                 $('#modal-detail').modal('show');
                 $('#body-html').html(response);
+            }
+        });
+    });
+
+    $(document).on('click', '.modalPayTable', function(e) {
+        var total = $(this).data('total');
+        var id = $(this).data('id');
+        Swal.showLoading();
+        $.ajax({
+            type: "post",
+            url: "{{ route('generateQr') }}",
+            data: {
+                total: total
+            },
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                Swal.close();
+                $('#modal-pay').modal('show');
+                $('#totalPay').html(total + ' บาท');
+                $('#qr_code').html(response);
+                $('#order_id_pay').val(id);
+                $('#pay_type').val('table'); 
+            }
+        });
+    });
+
+    $(document).on('click', '.update-status-table', function(e) {
+        var id = $(this).data('id');
+        $('#modal-detail').modal('hide');
+        Swal.fire({
+            title: "<h5>ท่านต้องการอัพเดทสถานะโต๊ะนี้ใช่หรือไม่</h5>",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "ยืนยัน",
+            denyButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.showLoading();
+                $.ajax({
+                    type: "post",
+                    url: "{{ route('updatestatusTable') }}",
+                    data: {
+                        id: id
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        Swal.close();
+                        if (response.status == true) {
+                            $('#myTable').DataTable().ajax.reload(null, false);
+                            Swal.fire(response.message, "", "success");
+                        } else {
+                            Swal.fire(response.message, "", "error");
+                        }
+                    }
+                });
             }
         });
     });
@@ -396,12 +459,15 @@
         Swal.close();
     });
 
-    
     $('#confirm_pay').click(function(e) {
         e.preventDefault();
-        var id = $('#order_id_pay').val(); /
+        var id = $('#order_id_pay').val();
+        var pay_type = $('#pay_type').val() || 'single';
+        var route_url = pay_type === 'table' ? "{{route('confirm_pay_table')}}" : "{{route('confirm_pay_single')}}";
+        
         $.ajax({
-            url: "{{route('confirm_pay_single')}}",
+            url: route_url,
+            type: "post",
             data: {
                 id: id
             },
