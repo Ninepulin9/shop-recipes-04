@@ -120,100 +120,98 @@ class Admin extends Controller
         }
         return response()->json($data);
     }
-    public function listOrderDetailSingle(Request $request)
-    {
-        $orderId = $request->input('id');
-        $order = Orders::find($orderId);
-        $info = '';
-
-        if ($order) {
-            $info .= '<div class="mb-3">';
-            $info .= '<div class="row"><div class="col d-flex align-items-end"><h5 class="text-primary mb-2">เลขออเดอร์ #: ' . $order->id . '</h5></div>
+  public function listOrderDetailSingle(Request $request)
+{
+    $orderId = $request->input('id');
+    $order = Orders::find($orderId);
+    $info = '';
+    
+    if ($order) {
+        $info .= '<div class="mb-3">';
+        $info .= '<div class="row"><div class="col d-flex align-items-end"><h5 class="text-primary mb-2">เลขออเดอร์ #: ' . $order->id . '</h5></div>
         <div class="col-auto d-flex align-items-start">';
-
-            if ($order->status != 2) {
-                $info .= '<button href="javascript:void(0)" class="btn btn-sm btn-primary updatestatusOrder m-1" data-id="' . $order->id . '">อัพเดทออเดอร์สำเร็จแล้ว</button>';
-                $info .= '<button href="javascript:void(0)" class="btn btn-sm btn-danger cancelOrderSwal m-1" data-id="' . $order->id . '">ยกเลิกออเดอร์</button>';
-            }
-            $info .= '</div></div>';
-
-            $orderDetails = OrdersDetails::where('order_id', $order->id)->get()->groupBy('menu_id');
-            foreach ($orderDetails as $details) {
-                $menuName = optional($details->first()->menu)->name ?? 'ไม่พบชื่อเมนู';
-                $orderOption = OrdersOption::where('order_detail_id', $details->first()->id)->get();
-
-                foreach ($details as $detail) {
-                    $detailsText = [];
-                    if ($orderOption->isNotEmpty()) {
-                        foreach ($orderOption as $key => $option) {
-                            $optionName = MenuOption::find($option->option_id);
-                            $detailsText[] = $optionName->type;
-                        }
-                        $detailsText = implode(',', $detailsText);
-                    }
-                    $optionType = $menuName;
-                    $priceTotal = number_format($detail->price, 2);
-                    $info .= '<ul class="list-group mb-1 shadow-sm rounded">';
-                    $info .= '<li class="list-group-item d-flex justify-content-between align-items-start">';
-                    $info .= '<div class="flex-grow-1">';
-                    $info .= '<div><span class="fw-bold">' . htmlspecialchars($optionType) . '</span></div>';
-                    if (!empty($detailsText)) {
-                        $info .= '<div class="small text-secondary mb-1 ps-2">+ ' . $detailsText . '</div>';
-                    }
-                    if (!empty($detail->remark)) {
-                        $info .= '<div class="small text-secondary mb-1 ps-2">+ หมายเหตุ : ' . $detail->remark . '</div>';
-                    }
-                    $info .= '</div>';
-                    $info .= '<div class="text-end d-flex flex-column align-items-end">';
-                    $info .= '<div class="mb-1">จำนวน: ' . $detail->quantity . '</div>';
-                    $info .= '<div>';
-                    $info .= '<button class="btn btn-sm btn-primary me-1">' . $priceTotal . ' บาท</button>';
-                    $info .= '<button href="javascript:void(0)" class="btn btn-sm btn-danger cancelMenuSwal" data-id="' . $detail->id . '">ยกเลิก</button>';
-                    $info .= '</div>';
-                    $info .= '</div>';
-                    $info .= '</li>';
-                    $info .= '</ul>';
-                }
-            }
-            $info .= '</div>';
+        
+        if ($order->status != 2) {
+            $info .= '<button href="javascript:void(0)" class="btn btn-sm btn-primary updatestatusOrder m-1" data-id="' . $order->id . '">อัพเดทออเดอร์สำเร็จแล้ว</button>';
+            $info .= '<button href="javascript:void(0)" class="btn btn-sm btn-danger cancelOrderSwal m-1" data-id="' . $order->id . '">ยกเลิกออเดอร์</button>';
         }
-        echo $info;
+        $info .= '</div></div>';
+        
+        $orderDetails = OrdersDetails::where('order_id', $order->id)->get()->groupBy('menu_id');
+        foreach ($orderDetails as $details) {
+            $menuName = optional($details->first()->menu)->name ?? 'ไม่พบชื่อเมนู';
+            $orderOption = OrdersOption::where('order_detail_id', $details->first()->id)->get();
+            
+            foreach ($details as $detail) {
+                $detailsText = [];
+                if ($orderOption->isNotEmpty()) {
+                    foreach ($orderOption as $key => $option) {
+                        $optionName = MenuOption::find($option->option_id);
+                        $detailsText[] = $optionName->type;
+                    }
+                    $detailsText = implode(',', $detailsText);
+                }
+                $optionType = $menuName;
+                $priceTotal = number_format($detail->price, 2);
+                $info .= '<ul class="list-group mb-1 shadow-sm rounded">';
+                $info .= '<li class="list-group-item d-flex justify-content-between align-items-start">';
+                $info .= '<div class="flex-grow-1">';
+                $info .= '<div><span class="fw-bold">' . htmlspecialchars($optionType) . '</span></div>';
+                if (!empty($detailsText)) {
+                    $info .= '<div class="small text-secondary mb-1 ps-2">+ ' . $detailsText . '</div>';
+                }
+                if (!empty($detail->remark)) {
+                    $info .= '<div class="small text-secondary mb-1 ps-2">+ หมายเหตุ : ' . $detail->remark . '</div>';
+                }
+                $info .= '</div>';
+                $info .= '<div class="text-end d-flex flex-column align-items-end">';
+                $info .= '<div class="mb-1">จำนวน: ' . $detail->quantity . '</div>';
+                $info .= '<div>';
+                $info .= '<button class="btn btn-sm btn-primary me-1">' . $priceTotal . ' บาท</button>';
+                $info .= '<button href="javascript:void(0)" class="btn btn-sm btn-danger cancelMenuSwal" data-id="' . $detail->id . '">ยกเลิก</button>';
+                $info .= '</div>';
+                $info .= '</div>';
+                $info .= '</li>';
+                $info .= '</ul>';
+            }
+        }
+        $info .= '</div>';
     }
+    echo $info;
+}
 
-    // เพิ่มฟังก์ชันสำหรับชำระเงินออเดอร์เดี่ยว
     public function confirm_pay_single(Request $request)
-    {
-        $data = [
-            'status' => false,
-            'message' => 'ชำระเงินไม่สำเร็จ',
-        ];
-        $id = $request->input('id');
-        if ($id) {
-            $order = Orders::find($id);
-            if ($order) {
-                $pay = new Pay();
-                $pay->payment_number = $this->generateRunningNumber();
-                $pay->table_id = $order->table_id;
-                $pay->total = $order->total;
-                if ($pay->save()) {
-                    $order->status = 3;
-                    if ($order->save()) {
-                        $paygroup = new PayGroup();
-                        $paygroup->pay_id = $pay->id;
-                        $paygroup->order_id = $order->id;
-                        $paygroup->save();
-
-                        $data = [
-                            'status' => true,
-                            'message' => 'ชำระเงินเรียบร้อยแล้ว',
-                        ];
-                    }
+{
+    $data = [
+        'status' => false,
+        'message' => 'ชำระเงินไม่สำเร็จ',
+    ];
+    $id = $request->input('id');
+    if ($id) {
+        $order = Orders::find($id);
+        if ($order) {
+            $pay = new Pay();
+            $pay->payment_number = $this->generateRunningNumber();
+            $pay->table_id = $order->table_id;
+            $pay->total = $order->total;
+            if ($pay->save()) {
+                $order->status = 3;
+                if ($order->save()) {
+                    $paygroup = new PayGroup();
+                    $paygroup->pay_id = $pay->id;
+                    $paygroup->order_id = $order->id;
+                    $paygroup->save();
+                    
+                    $data = [
+                        'status' => true,
+                        'message' => 'ชำระเงินเรียบร้อยแล้ว',
+                    ];
                 }
             }
         }
-        return response()->json($data);
     }
-    public function listOrderDetail(Request $request)
+    return response()->json($data);
+}    public function listOrderDetail(Request $request)
     {
         $orders = Orders::where('table_id', $request->input('id'))
             ->whereIn('status', [1, 2])
@@ -426,38 +424,71 @@ class Admin extends Controller
         return view('order', $data);
     }
 
-    public function ListOrderPay()
-    {
-        $data = [
-            'status' => false,
-            'message' => '',
-            'data' => []
-        ];
-        $pay = Pay::whereNot('table_id')->get();
+    public function ListOrder()
+{
+    $data = [
+        'status' => false,
+        'message' => '',
+        'data' => []
+    ];
+    
+    $order = DB::table('orders as o')
+        ->select(
+            'o.id',
+            'o.table_id',
+            'o.total', 
+            'o.created_at',
+            'o.status',
+            'o.remark'
+        )
+        ->whereNotNull('o.table_id')
+        ->whereIn('o.status', [1, 2])
+        ->orderBy('o.status', 'asc')
+        ->orderBy('o.created_at', 'desc') 
+        ->get();
 
-        if (count($pay) > 0) {
-            $info = [];
-            foreach ($pay as $rs) {
-                $action = '<a href="' . route('printReceipt', $rs->id) . '" target="_blank" type="button" class="btn btn-sm btn-outline-primary m-1">ออกใบเสร็จฉบับย่อ</a>
-                <button data-id="' . $rs->id . '" type="button" class="btn btn-sm btn-outline-primary modalTax m-1">ออกใบกำกับภาษี</button>
-                <button data-id="' . $rs->id . '" type="button" class="btn btn-sm btn-outline-primary modalShowPay m-1">รายละเอียด</button>';
-                $table = Table::find($rs->table_id);
-                $info[] = [
-                    'payment_number' => $rs->payment_number,
-                    'table_id' => $table->table_number,
-                    'total' => $rs->total,
-                    'created' => $this->DateThai($rs->created_at),
-                    'action' => $action
-                ];
+    if (count($order) > 0) {
+        $info = [];
+        foreach ($order as $rs) {
+            $status = '';
+            $pay = '';
+            
+            if ($rs->status == 1) {
+                $status = '<button type="button" class="btn btn-sm btn-primary update-status-order" data-id="' . $rs->id . '">กำลังทำอาหาร</button>';
+            } else {
+                $status = '<button class="btn btn-sm btn-success">ออเดอร์สำเร็จแล้ว</button>';
             }
-            $data = [
-                'data' => $info,
-                'status' => true,
-                'message' => 'success'
+
+            if ($rs->status != 3) {
+                $pay = '<a href="' . route('printOrderAdmin', $rs->id) . '" target="_blank" type="button" class="btn btn-sm btn-outline-primary m-1">ปริ้นออเดอร์</a>
+                <a href="' . route('printOrderAdminCook', $rs->id) . '" target="_blank" type="button" class="btn btn-sm btn-outline-primary m-1">ปริ้นออเดอร์ในครัว</a>
+                <button data-id="' . $rs->id . '" data-total="' . $rs->total . '" type="button" class="btn btn-sm btn-outline-success modalPaySingle">ชำระเงิน</button>';
+            }
+            
+            $flag_order = '<button class="btn btn-sm btn-success">สั่งหน้าร้าน</button>';
+            $action = '<button data-id="' . $rs->id . '" type="button" class="btn btn-sm btn-outline-primary modalShowSingle m-1">รายละเอียด</button>' . $pay;
+            $table = Table::find($rs->table_id);
+            
+            $info[] = [
+                'flag_order' => $flag_order,
+                'order_id' => 'ออเดอร์ #' . $rs->id, 
+                'table_id' => 'โต๊ะ ' . $table->table_number,
+                'total' => number_format($rs->total, 2),
+                'remark' => $rs->remark,
+                'status' => $status,
+                'created' => $this->DateThai($rs->created_at),
+                'action' => $action
             ];
         }
-        return response()->json($data);
+        $data = [
+            'data' => $info,
+            'status' => true,
+            'message' => 'success'
+        ];
     }
+    return response()->json($data);
+}
+
 
     public function ListOrderPayRider()
     {
