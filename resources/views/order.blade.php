@@ -15,7 +15,7 @@
             <div class="col-lg-12 col-md-12 order-1 mb-3">
                 <div class="card">
                     <div class="card-header">
-                        <h6>รายการออเดอร์ทั้งหมด</h6>
+                        <h6>รายการออเดอร์ทั้งหมด (แยกรายการ)</h6>
                         <hr>
                     </div>
                     <div class="card-body">
@@ -23,6 +23,7 @@
                             <thead>
                                 <tr>
                                     <th class="text-center">สั่งหน้าร้าน</th>
+                                    <th class="text-center">เลขออเดอร์</th>
                                     <th class="text-center">เลขโต้ะ</th>
                                     <th class="text-center">ยอดราคา</th>
                                     <th class="text-left">หมายเหตุ</th>
@@ -111,7 +112,7 @@
                             <div class="col-12 d-flex justify-content-center mb-3" id="qr_code">
                             </div>
                         </div>
-                        <input type="hidden" id="table_id">
+                        <input type="hidden" id="order_id_pay">
                     </div>
                 </div>
             </div>
@@ -220,7 +221,7 @@
             processing: true,
             scrollX: true,
             order: [
-                [4, 'desc']
+                [5, 'desc'] 
             ],
             ajax: {
                 url: "{{route('ListOrder')}}",
@@ -233,12 +234,17 @@
             columns: [{
                     data: 'flag_order',
                     class: 'text-center',
-                    width: '15%'
+                    width: '12%'
+                },
+                {
+                    data: 'order_id', 
+                    class: 'text-center',
+                    width: '12%'
                 },
                 {
                     data: 'table_id',
                     class: 'text-center',
-                    width: '15%'
+                    width: '12%'
                 },
                 {
                     data: 'total',
@@ -258,12 +264,12 @@
                 {
                     data: 'status',
                     class: 'text-center',
-                    width: '15%'
+                    width: '12%'
                 },
                 {
                     data: 'action',
                     class: 'text-center',
-                    width: '15%',
+                    width: '12%',
                     orderable: false
                 },
             ]
@@ -316,12 +322,12 @@
     });
 </script>
 <script>
-    $(document).on('click', '.modalShow', function(e) {
+    $(document).on('click', '.modalShowSingle', function(e) {
         e.preventDefault();
         var id = $(this).data('id');
         $.ajax({
             type: "post",
-            url: "{{ route('listOrderDetail') }}",
+            url: "{{ route('listOrderDetailSingle') }}", 
             data: {
                 id: id
             },
@@ -354,7 +360,7 @@
         });
     });
 
-    $(document).on('click', '.modalPay', function(e) {
+    $(document).on('click', '.modalPaySingle', function(e) {
         var total = $(this).data('total');
         var id = $(this).data('id');
         Swal.showLoading();
@@ -372,10 +378,11 @@
                 $('#modal-pay').modal('show');
                 $('#totalPay').html(total + ' บาท');
                 $('#qr_code').html(response);
-                $('#table_id').val(id);
+                $('#order_id_pay').val(id); 
             }
         });
     });
+    
     $(document).on('click', '.modalRider', function(e) {
         var total = $(this).data('total');
         var id = $(this).data('id');
@@ -387,9 +394,9 @@
 
     $('#confirm_pay').click(function(e) {
         e.preventDefault();
-        var id = $('#table_id').val();
+        var id = $('#order_id_pay').val(); 
         $.ajax({
-            url: "{{route('confirm_pay')}}",
+            url: "{{route('confirm_pay_single')}}", 
             type: "post",
             data: {
                 id: id
@@ -449,7 +456,7 @@
     })
 
     $('#modal-pay').on('hidden.bs.modal', function() {
-        $('#table_id').val('');
+        $('#order_id_pay').val(''); 
     })
 
     $(document).on('submit', '#tax-full', function(e) {
@@ -530,7 +537,8 @@
         });
     });
 
-    $(document).on('click', '.update-status', function(e) {
+    // แก้ไข: เปลี่ยนจาก update-status เป็น update-status-order
+    $(document).on('click', '.update-status-order', function(e) {
         var id = $(this).data('id');
         $('#modal-detail').modal('hide');
         Swal.fire({
@@ -544,7 +552,7 @@
                 Swal.showLoading();
                 $.ajax({
                     type: "post",
-                    url: "{{ route('updatestatus') }}",
+                    url: "{{ route('updatestatusOrder') }}", 
                     data: {
                         id: id
                     },
@@ -564,6 +572,7 @@
             }
         });
     });
+    
     $(document).on('click', '.updatestatusOrder', function(e) {
         var id = $(this).data('id');
         $('#modal-detail').modal('hide');
@@ -598,6 +607,7 @@
             }
         });
     });
+    
     $(document).on('click', '.OpenRecipes', function(e) {
         var id = $(this).data('id');
         $('#modal-detail').modal('hide');

@@ -121,6 +121,8 @@ Route::middleware(['role:admin'])->group(function () {
     Route::get('/admin/table/edit/{id}', [Table::class, 'tableEdit'])->name('tableEdit');
     Route::post('/admin/table/delete', [Table::class, 'tableDelete'])->name('tableDelete');
     Route::post('/admin/table/save', [Table::class, 'tableSave'])->name('tableSave');
+    Route::post('/admin/order/listOrderDetailSingle', [Admin::class, 'listOrderDetailSingle'])->name('listOrderDetailSingle');
+    Route::post('/admin/order/confirm_pay_single', [Admin::class, 'confirm_pay_single'])->name('confirm_pay_single');
     //หมวดหมู่
     Route::get('/admin/category', [Category::class, 'category'])->name('category');
     Route::post('/admin/category/listData', [Category::class, 'categorylistData'])->name('categorylistData');
