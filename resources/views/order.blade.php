@@ -15,7 +15,7 @@
             <div class="col-lg-12 col-md-12 order-1 mb-3">
                 <div class="card">
                     <div class="card-header">
-                        <h6>รายการออเดอร์ทั้งหมด (แยกรายการ)</h6>
+                        <h6>รายการออเดอร์ทั้งหมด</h6>
                         <hr>
                     </div>
                     <div class="card-body">
